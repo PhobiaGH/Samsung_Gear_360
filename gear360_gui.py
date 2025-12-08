@@ -1,61 +1,5 @@
 #!/usr/bin/env python3
 """
-                .                 .  .       .                                         .            
-                                                                          ..                        
-                                                              .   .                                 
-                 ..                     ....      .                                .     .          
-         ..   . .=%%+.       .    .    .-%%@.      .           .                                    
-                .@@-+@@-.          ...#@%:@@=          .          .    .                            
-                .@@#.:@@@=        .:%@@+.-@@*.                      .           .        .          
-                :@@@:..%@@@=+#:++##@@@:..+@@*.   .               . .                               .
-     .          .@@@#:..%@@@@@@@@@@@@-..##@@+.                                     .   .          . 
-   .            .#@@#...%@@@@@@@@@@@@-..:@@@.                            .        .                 
-            .    .@@-..-@@@@@@@@@@@@@*..:%@-     .                                             .    
-     .            =@@@@@@@@@@@@@@@@@@@@@@@#.   .                   .  .                             
-                .=@@@@@@@@@@@@@@@@@@@@@@@@@#.           .                                           
-               .#%@@@@@%-::##@@@#@---*@@@@@@#-               .                     .                
-          .   .*@@@@@@@@@#=*#@@@@++*@@@@@@@@@%.     .                .  .              .            
-              .+@@*:....:+@@@@@@@@@*:....:=@@#..            .         .  .                         .
-              :@+-+...    .#@@@@@@:  .. ..==:@+   . .   .      .            .                       
-     .        -:+@@@+-..+*:.@%##@:.+*:.:=*@@%.-                          . .        .         .     
-      ..      .-*+@%%@@@@:+:.%@@-.=.#@@@@%@%-#                    .            .                    
-               ..*..*@@=...:%%@@%-...-@@@@==..       .                                            . 
-        .          .@@*=. .        ..*=@@@%:                       .        .           ..          
-                  =@@@@+.       .    -@@@@@@@:             .                         ...  .      .  
-.                ..%@@@#+.         .*:@@@@@@@@=..                                    .     .   .    
-              .   ==#@@#=.      . ..%*@@@@@@@@@#.     .                                             
-                  .:@@@@%.     . ..=@@@@@@@@@@@@@=.                                             .   
-                   -@@@@%..    .+@=@@@@@@@@@@@@@@@@=..                  .       .        .          
-                   .@@@@@+-. ..%@@@@@@@@@@@@@@@@@@@@@*..                                            
-             .  .  .+%@@@@#.  =@@@@@@@@@@@@@@@@@@@@@@@@%..   .          .                 .         
-    .        .      .=@+@@@. .%@@@@@@@@@@@@@@@@@@@@@@@@@@%.                                         
-     .              ..%:@@@= .%-@@@@@@@@@@@@@@@@@@@@@@@@@@@#.          .                            
-      .               ..-@#*-.:.@@@@@@@@@@@@@@@@@@@@@@@@@@@@@.. .    . .                 .          
-                         -@--:  =@@@@@@@@%@@@@@@@@@@@@@@@@@@@@-..                          .      ..
-                          ...    .@@@@@@@=@@@@@@@@@@@@@@@@@@@@@-.                                   
-            .             .*#+-. .+@@@@@@=-@@@@@@@@@@@@@@@@@@@@@:                                   
-                          .-@@@%.#-@@@@@%...=@@@@:.-++::#@@@@@@@@.          .       .        .      
-             .  .         .:@@@@@*=@@@@@: .+@@*.%@@@@@@@@%*@@@@@@*.       .                         
-               .           .@@@@*..@@@@%=  .%=+@@@@@@@@@@@@@@@@@@%.     ..-**#=. .  .               
-  .     .           .      .@@@@% .@@@@#.  ..:@@@@@@@@@@@@@@@@@@@@:. .-%@@@@@@@@@@@@@*=..     .  .  
-                           .@@@@+ .@@@@-:+. .%@@@@@@@@@@@@@@@@@@@@*.=@@@@@@@@@@@@@@@@@%*=.          
-                          .:@@@@. :@@@#-@@@:.%@@@@@@@@@@@@@@@@@@@@@%@@@@@@@@@@@@@@@@@@@@@=.         
-                 .        .*@@@@=.+@@@@:@@@@.%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@##@@@@@@@@@@@%..       
-        .          .      .@@@@@..#@@@@.+@@@-*@@@@@@@@@@@@@@@@@#=--=*%@@@#=:.*@@@@@@@@@@@@@@.       
-            .            .#@@@#. .@@@@...%@@#.%@@@@@@@@@@@@@@@@@@@@@@@%%@@@@@@@@@@@@@@@@@@@@=       
-           .             :@@@@%. -@@@@.. .*@@#.@@@@@@@@@@+:..  .-*@@@@@@@@@@@@@@@@@@@@@@@@@%*       
- .    .               .:+%@@@+--+@@@@*..=#%@#-..-#@@@@@-   .    .-@@@@@@@@@@@@@@@@@@@@@@@@@:-   .   
-        .        .   .*@@@@@@-*@@@@@@- =%%@--@@@@@@@@@@+.      .=+--#@@@@@@@@@@@@@@@@@@@@@@.  .     
-                     :%#@@@@*:%@@@@@=.    ..+%%@@%%%@*.         .:%@@@@@@@@@@@@@@@@@@@@@@@*   .     
-                                   .              .@*. .  ..      ..=@@@@@@@@@@@@@@@@@@@@@.         
-                                                 .*%.-#@@@#+......=#@@@@@@@@@@@@@@@@@*#@+..         
-                                                 .#@=..   ..-*%#+--+@@@@@@@@@@@@@@@#::+..           
-        .                                   . .  ....          ..-+*#%%%%*+-+@@@#-...               
-                          .. .                              . .           .:...          .          
-      .      .                                      .  .                            .        .      
-                                                              . .        .       .              .   
-                               .        .     . . ..                                      .    .    
-
 Samsung Gear 360 Video Stitcher - Advanced GUI Version
 With preview, batch processing, and preset management
 """
@@ -1117,31 +1061,188 @@ class StitcherGUI:
             height = int(self.height_var.get())
             rotation = int(self.rotation_var.get())
             
-            original_stdout = sys.stdout
+            # Create custom stitcher with progress callback
+            stitcher = Gear360Stitcher(calib_file)
             
-            class LogCapture:
-                def __init__(self, log_queue):
-                    self.log_queue = log_queue
-                def write(self, text):
-                    if text.strip():
-                        self.log_queue.put(('log', text.strip()))
-                def flush(self):
-                    pass
+            # Monkey-patch the process_video method to report progress
+            original_process_video = stitcher.process_video
             
-            log_capture = LogCapture(self.log_queue)
-            sys.stdout = log_capture
-            
-            try:
-                stitcher = Gear360Stitcher(calib_file)
-                stitcher.process_video(input_file, output_file, width, height, rotation)
+            def process_video_with_progress(input_path, output_path, pano_width=3840, 
+                                           pano_height=1920, rotate_angle=0):
+                import cv2
+                import numpy as np
+                import subprocess
+                import tempfile
+                import os
+                from pathlib import Path
+                import time
                 
-                if not self.cancel_requested:
-                    self.log_queue.put(('done', 'Video stitching completed successfully!'))
+                # Check if ffmpeg is available
+                has_ffmpeg = stitcher.check_ffmpeg()
+                if not has_ffmpeg:
+                    self.log_queue.put(('log', "⚠ Warning: ffmpeg not found. Audio will not be preserved."))
+                
+                # Open input video
+                cap = cv2.VideoCapture(input_path)
+                if not cap.isOpened():
+                    self.log_queue.put(('log', f"✗ Error: Could not open video file: {input_path}"))
+                    raise Exception(f"Could not open video file: {input_path}")
+                
+                # Get video properties
+                fps = cap.get(cv2.CAP_PROP_FPS)
+                total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+                
+                # Determine final output dimensions based on rotation
+                output_w, output_h = pano_width, pano_height
+                if rotate_angle in [90, 270]:
+                    output_w, output_h = pano_height, pano_width
+                
+                self.log_queue.put(('log', f"\n📹 Input Video Info:"))
+                self.log_queue.put(('log', f"   FPS: {fps:.2f}"))
+                self.log_queue.put(('log', f"   Total Frames: {total_frames}"))
+                self.log_queue.put(('log', f"   Duration: {total_frames/fps:.2f}s"))
+                self.log_queue.put(('log', f"\n🎬 Output: {output_w}x{output_h} @ {fps:.2f} FPS ({rotate_angle}° rotation)"))
+                
+                # If ffmpeg is available, use a temporary file for video without audio
+                if has_ffmpeg:
+                    temp_output = tempfile.NamedTemporaryFile(suffix='.mp4', delete=False).name
+                    video_output = temp_output
                 else:
-                    self.log_queue.put(('done', 'Processing cancelled'))
+                    video_output = output_path
                 
-            finally:
-                sys.stdout = original_stdout
+                # Setup video writer
+                fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+                out = cv2.VideoWriter(video_output, fourcc, fps, (output_w, output_h))
+                
+                if not out.isOpened():
+                    self.log_queue.put(('log', f"✗ Error: Could not create output video: {video_output}"))
+                    cap.release()
+                    raise Exception(f"Could not create output video: {video_output}")
+                
+                # Process frames
+                frame_count = 0
+                start_time = time.time()
+                last_update = start_time
+                
+                self.log_queue.put(('log', "\n⚙️ Processing video..."))
+                
+                while True:
+                    if self.cancel_requested:
+                        self.log_queue.put(('log', "\n⚠ Processing cancelled by user"))
+                        break
+                    
+                    ret, frame = cap.read()
+                    if not ret:
+                        break
+                    
+                    # Stitch frame
+                    panorama = stitcher.stitch_frame(frame, pano_width, pano_height)
+                    
+                    # Rotate panorama if requested
+                    if rotate_angle == 90:
+                        panorama = cv2.rotate(panorama, cv2.ROTATE_90_CLOCKWISE)
+                    elif rotate_angle == 180:
+                        panorama = cv2.rotate(panorama, cv2.ROTATE_180)
+                    elif rotate_angle == 270:
+                        panorama = cv2.rotate(panorama, cv2.ROTATE_90_COUNTERCLOCKWISE)
+
+                    out.write(panorama)
+                    
+                    frame_count += 1
+                    
+                    # Update progress every 0.5 seconds
+                    current_time = time.time()
+                    if current_time - last_update >= 0.5 or frame_count == total_frames:
+                        progress_percent = (frame_count / total_frames) * 100
+                        elapsed = current_time - start_time
+                        fps_actual = frame_count / elapsed if elapsed > 0 else 0
+                        eta = (total_frames - frame_count) / fps_actual if fps_actual > 0 else 0
+                        
+                        # Send progress update to GUI
+                        self.log_queue.put(('progress', progress_percent))
+                        self.log_queue.put(('status', f"Processing: {progress_percent:.1f}% | Frame {frame_count}/{total_frames} | {fps_actual:.1f} fps | ETA: {eta:.0f}s"))
+                        
+                        last_update = current_time
+                
+                # Cleanup
+                cap.release()
+                out.release()
+                
+                if self.cancel_requested:
+                    # Clean up partial output
+                    try:
+                        os.unlink(video_output)
+                    except:
+                        pass
+                    return
+                
+                total_time = time.time() - start_time
+                self.log_queue.put(('log', f"\n✓ Video processing complete!"))
+                self.log_queue.put(('log', f"  Total time: {total_time:.1f}s"))
+                self.log_queue.put(('log', f"  Average FPS: {frame_count/total_time:.1f}"))
+                
+                # Merge audio if ffmpeg is available
+                if has_ffmpeg:
+                    self.log_queue.put(('log', "\n🔊 Merging audio from original video..."))
+                    
+                    try:
+                        # Use ffmpeg to copy video from stitched file and audio from original
+                        cmd = [
+                            'ffmpeg',
+                            '-i', video_output,  # Video source (no audio)
+                            '-i', input_path,    # Audio source
+                            '-c:v', 'copy',      # Copy video stream without re-encoding
+                            '-c:a', 'aac',       # Encode audio as AAC
+                            '-map', '0:v:0',     # Map video from first input
+                            '-map', '1:a:0?',    # Map audio from second input (? means optional)
+                            '-shortest',         # Finish encoding when shortest stream ends
+                            '-y',                # Overwrite output file
+                            output_path
+                        ]
+                        
+                        result = subprocess.run(cmd, 
+                                              stdout=subprocess.PIPE, 
+                                              stderr=subprocess.PIPE,
+                                              text=True)
+                        
+                        if result.returncode == 0:
+                            self.log_queue.put(('log', "✓ Audio merged successfully"))
+                            audio_merged = True
+                        else:
+                            self.log_queue.put(('log', "⚠ Warning: Could not merge audio (ffmpeg error)"))
+                            self.log_queue.put(('log', f"  Video saved without audio: {video_output}"))
+                            audio_merged = False
+                    
+                    except Exception as e:
+                        self.log_queue.put(('log', f"⚠ Warning: Error merging audio: {e}"))
+                        self.log_queue.put(('log', f"  Video saved without audio: {video_output}"))
+                        audio_merged = False
+                    
+                    # Clean up temporary file
+                    try:
+                        os.unlink(video_output)
+                    except:
+                        pass
+                    
+                    if audio_merged:
+                        self.log_queue.put(('log', f"  Output saved to: {output_path}"))
+                    else:
+                        # If audio merge failed, rename temp file to output
+                        try:
+                            os.rename(video_output, output_path)
+                            self.log_queue.put(('log', f"  Output saved to: {output_path} (without audio)"))
+                        except:
+                            self.log_queue.put(('log', f"  Output saved to: {video_output} (without audio)"))
+                else:
+                    self.log_queue.put(('log', f"  Output saved to: {output_path} (without audio)"))
+            
+            # Use our custom version
+            process_video_with_progress(input_file, output_file, width, height, rotation)
+            
+            if not self.cancel_requested:
+                self.log_queue.put(('done', 'Video stitching completed successfully!'))
+            else:
+                self.log_queue.put(('done', 'Processing cancelled'))
                 
         except Exception as e:
             self.log_queue.put(('error', f"Error during stitching: {str(e)}"))
@@ -1197,11 +1298,115 @@ class StitcherGUI:
                 self.log_queue.put(('log', f"Processing video {i+1}/{total_videos}: {input_path.name}"))
                 self.log_queue.put(('log', f"{'='*60}"))
                 
+                # Create stitcher
                 stitcher = Gear360Stitcher(calib_file)
-                stitcher.process_video(str(input_file), str(output_file), width, height, rotation)
                 
-                progress = ((i + 1) / total_videos) * 100
-                self.log_queue.put(('progress', progress))
+                # Process video with progress tracking
+                try:
+                    import cv2
+                    import time
+                    import tempfile
+                    import os
+                    
+                    cap = cv2.VideoCapture(str(input_file))
+                    if not cap.isOpened():
+                        self.log_queue.put(('log', f"✗ Error: Could not open {input_path.name}"))
+                        continue
+                    
+                    fps = cap.get(cv2.CAP_PROP_FPS)
+                    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+                    
+                    output_w, output_h = width, height
+                    if rotation in [90, 270]:
+                        output_w, output_h = height, width
+                    
+                    has_ffmpeg = stitcher.check_ffmpeg()
+                    video_output = tempfile.NamedTemporaryFile(suffix='.mp4', delete=False).name if has_ffmpeg else str(output_file)
+                    
+                    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+                    out = cv2.VideoWriter(video_output, fourcc, fps, (output_w, output_h))
+                    
+                    frame_count = 0
+                    start_time = time.time()
+                    
+                    while True:
+                        if self.cancel_requested:
+                            break
+                        
+                        ret, frame = cap.read()
+                        if not ret:
+                            break
+                        
+                        panorama = stitcher.stitch_frame(frame, width, height)
+                        
+                        if rotation == 90:
+                            panorama = cv2.rotate(panorama, cv2.ROTATE_90_CLOCKWISE)
+                        elif rotation == 180:
+                            panorama = cv2.rotate(panorama, cv2.ROTATE_180)
+                        elif rotation == 270:
+                            panorama = cv2.rotate(panorama, cv2.ROTATE_90_COUNTERCLOCKWISE)
+                        
+                        out.write(panorama)
+                        frame_count += 1
+                        
+                        # Calculate progress for this video within the batch
+                        video_progress = (frame_count / total_frames) * 100
+                        overall_progress = ((i + (frame_count / total_frames)) / total_videos) * 100
+                        
+                        self.log_queue.put(('progress', overall_progress))
+                        self.log_queue.put(('status', f"Video {i+1}/{total_videos} | {video_progress:.1f}% | Frame {frame_count}/{total_frames}"))
+                    
+                    cap.release()
+                    out.release()
+                    
+                    if self.cancel_requested:
+                        try:
+                            os.unlink(video_output)
+                        except:
+                            pass
+                        break
+                    
+                    # Merge audio if available
+                    if has_ffmpeg:
+                        self.log_queue.put(('log', "\n🔊 Merging audio..."))
+                        
+                        try:
+                            cmd = [
+                                'ffmpeg',
+                                '-i', video_output,
+                                '-i', str(input_file),
+                                '-c:v', 'copy',
+                                '-c:a', 'aac',
+                                '-map', '0:v:0',
+                                '-map', '1:a:0?',
+                                '-shortest',
+                                '-y',
+                                str(output_file)
+                            ]
+                            
+                            result = subprocess.run(cmd, 
+                                                  stdout=subprocess.PIPE, 
+                                                  stderr=subprocess.PIPE,
+                                                  text=True)
+                            
+                            if result.returncode == 0:
+                                self.log_queue.put(('log', "✓ Audio merged successfully"))
+                            else:
+                                self.log_queue.put(('log', "⚠ Could not merge audio"))
+                        
+                        except Exception as e:
+                            self.log_queue.put(('log', f"⚠ Audio merge error: {str(e)}"))
+                        
+                        try:
+                            os.unlink(video_output)
+                        except:
+                            pass
+                    
+                    self.log_queue.put(('log', f"✓ Completed: {output_name}"))
+                    
+                except Exception as e:
+                    self.log_queue.put(('log', f"✗ Error processing {input_path.name}: {str(e)}"))
+                    continue
             
             if not self.cancel_requested:
                 self.log_queue.put(('done', f'Batch processing complete! Processed {total_videos} videos'))
@@ -1214,26 +1419,56 @@ class StitcherGUI:
     def calibrate_worker(self, input_file, calib_file):
         """Worker thread for calibration"""
         try:
-            original_stdout = sys.stdout
+            import cv2
+            import json
             
-            class LogCapture:
-                def __init__(self, log_queue):
-                    self.log_queue = log_queue
-                def write(self, text):
-                    if text.strip():
-                        self.log_queue.put(('log', text.strip()))
-                def flush(self):
-                    pass
+            self.log_queue.put(('log', "\n🎯 Camera Calibration Tool"))
+            self.log_queue.put(('log', "=" * 60))
             
-            log_capture = LogCapture(self.log_queue)
-            sys.stdout = log_capture
+            cap = cv2.VideoCapture(input_file)
+            if not cap.isOpened():
+                self.log_queue.put(('error', f"Could not open video: {input_file}"))
+                return
             
-            try:
-                calibrate_camera(input_file, calib_file)
-                self.log_queue.put(('done', f'Calibration saved to: {calib_file}'))
-                
-            finally:
-                sys.stdout = original_stdout
+            # Read first frame
+            ret, frame = cap.read()
+            cap.release()
+            
+            if not ret:
+                self.log_queue.put(('error', "Could not read frame from video"))
+                return
+            
+            h, w = frame.shape[:2]
+            self.log_queue.put(('log', f"\n📏 Video resolution: {w}x{h}"))
+            
+            # Save sample frame for reference
+            sample_path = "calibration_sample.jpg"
+            cv2.imwrite(sample_path, frame)
+            self.log_queue.put(('log', f"✓ Sample frame saved to: {sample_path}"))
+            
+            # Basic calibration parameters
+            self.log_queue.put(('log', "\n⚙️ Setting default calibration parameters for Gear 360..."))
+            
+            calibration = {
+                "camera_model": "Samsung Gear 360",
+                "video_resolution": [w, h],
+                "distortion_k1": -0.28,
+                "distortion_k2": 0.05,
+                "notes": "Default distortion coefficients for Gear 360. Adjust if needed."
+            }
+            
+            # Save calibration
+            with open(calib_file, 'w') as f:
+                json.dump(calibration, f, indent=2)
+            
+            self.log_queue.put(('log', f"\n✓ Calibration saved to: {calib_file}"))
+            self.log_queue.put(('log', "\n💡 Tips:"))
+            self.log_queue.put(('log', "   - The default distortion coefficients work for most Gear 360 videos"))
+            self.log_queue.put(('log', "   - If the output appears distorted, try adjusting 'distortion_k1' and 'distortion_k2'"))
+            self.log_queue.put(('log', "   - Increase k1 (make less negative) if edges are too compressed"))
+            self.log_queue.put(('log', "   - Decrease k1 (make more negative) if edges are too stretched"))
+            
+            self.log_queue.put(('done', f'Calibration saved to: {calib_file}'))
                 
         except Exception as e:
             self.log_queue.put(('error', f"Error during calibration: {str(e)}"))
